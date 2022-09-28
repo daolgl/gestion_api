@@ -1,4 +1,5 @@
-const { Sequelize } = require("../models");
+const {  QueryTypes } = require('sequelize');
+const { Sequelize, sequelize } = require("../models");
 const db = require("../models");
 const Tareas = db.tarea;
 const Op = db.Sequelize.Op;
@@ -33,20 +34,21 @@ exports.create = (req, res) => {
 };
 
 // Retrieve all Tareas from the database.
-exports.findAll = (req, res) => {
-    // const actividad = req.query.actividad;
-    // var condition = actividad ? { actividad: { [Op.like]: `%${actividad}%` } } : null;
-  
-    Tareas.findAll()
-      .then(data => {
-        res.send(data);
-      })
-      .catch(err => {
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while retrieving tareas."
-        });
-      });
+exports.findAll = async(req, res) => {
+  const tareas = await sequelize.query("SELECT tareas.id, tareas.actividad, tareas.estatus_actividad, tareas.isAcepted, tareas.descripcion_actividad, users.first_name, users.last_name FROM `tareas` INNER JOIN `users` ON tareas.asignado=users.id", { type: QueryTypes.SELECT });
+
+  res.send(tareas);
+
+    // Tareas.findAll()
+    //   .then(data => {
+    //     res.send(data);
+    //   })
+    //   .catch(err => {
+    //     res.status(500).send({
+    //       message:
+    //         err.message || "Some error occurred while retrieving tareas."
+    //     });
+    //   });
 };
 
 // Find a single Tareas with an id
@@ -162,15 +164,19 @@ exports.deleteAll = (req, res) => {
 };
 
 // Find all published Tareas
-exports.findAllAccepted= (req, res) => {
-    Tareas.findAll({ where: { isAcepted: true } })
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving tareas."
-      });
-    });
+exports.findAllAccepted = async(req, res) => {
+  const tareas = await sequelize.query("SELECT tareas.id, tareas.actividad, tareas.estatus_actividad, tareas.isAcepted, tareas.descripcion_actividad, users.first_name, users.last_name FROM `tareas` INNER JOIN `users` ON tareas.asignado=users.id WHERE tareas.isAcepted = 1", { type: QueryTypes.SELECT });
+
+  res.send(tareas);
+
+    // Tareas.findAll({ where: { isAcepted: true } })
+    // .then(data => {
+    //   res.send(data);
+    // })
+    // .catch(err => {
+    //   res.status(500).send({
+    //     message:
+    //       err.message || "Some error occurred while retrieving tareas."
+    //   });
+    // });
 };
